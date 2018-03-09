@@ -3,30 +3,45 @@
     <div
       style="height:55px;margin-top:-55px;padding:8px 10px;"
     >
-      <el-input
-        placeholder="输入关键字进行过滤"
-        v-model="filterText">
-      </el-input>
+      <el-button @click="modalAdd(null, null)" type="text">添加一级分类</el-button>
     </div>
     <div class="admin-main" style="overflow:auto;" v-if="list">
-      <el-tree
-        style="padding:20px;"
-        :data="list"
-        :props="defaultProps"
-        node-key="id"
-        :default-expand-all="false"
-        :expand-on-click-node="false"
-        :filter-node-method="filterNode"
-        ref="tree"
-        :getCheckedNodes="getChecked"
-        :render-content="renderContent">
-      </el-tree>
+      <el-row :gutter="20">
+        <el-col :span="8" v-for="(item, index) in list" :key="index">
+          <el-card class="box-card" style="margin-bottom:20px;">
+            <div slot="header" class="clearfix">
+              <span>{{item.name}}</span>
+              <el-button @click="modalDel(item)" style="float: right; padding: 5px 10px;margin-left:10px;" type="danger">删除</el-button>
+              <el-button @click="modalAdd(item)" style="float: right; padding: 5px 10px" type="primary">添加分类</el-button>
+            </div>
+            <el-tag
+              style="margin:0 5px;"
+              v-for="tags in item.children"
+              :key="tags.name"
+              closable
+              @close="modalDel(tags)"
+              :type="tag[index]">
+              {{tags.name}}
+            </el-tag>
+          </el-card>
+        </el-col>
+      </el-row>
+      <empty v-if="!list.length && !loading">
+        <img slot="icon" src="static/tip1.png" alt="">
+        <p slot="text">还没有添加任何部门哦！
+          <el-button @click="modalAdd(null, null)" type="text">前去添加</el-button>
+        </p>
+      </empty>
+      <app-loading v-if="loading" style="height:100%;" name="tail-spin">
+        <span slot="text">正在努力加载中，请稍后！</span>
+      </app-loading>
     </div>
     <el-dialog
-      title="填写部门名称"
+      :title="Object.keys(current).length ? '请填写子分类' : '请填顶级分类'"
       :visible.sync="modal.add"
+      @close="clearCurrent"
       width="30%">
-      <p style="margin-bottom:20px;">您正在添加<span style="color:#D94447;margin:0 5px;">{{current.name}}</span>的二级部门</p>
+      <p v-if="Object.keys(current).length" style="margin-bottom:20px;">您正在添加<span style="color:#D94447;margin:0 5px;">{{current.name}}</span>的二级部门</p>
       <el-input
         placeholder="请填写部门名称"
         v-model="add.name"
@@ -52,12 +67,15 @@
 <script>
 import axios from 'axios'
 import {addProjectCategory, ProjectCategory, delProjectCategory} from '@/config'
-let id = 1000
+import empty from '@/components/empty'
+import AppLoading from '@/components/loading'
 export default {
   data () {
     return {
+      loading: false,
+      tag: ['primary', 'success', 'warning', 'danger'],
       filterText: '',
-      list: null,
+      list: [],
       current: {},
       modal: {
         add: false,
@@ -81,17 +99,27 @@ export default {
   created () {
     this.getList()
   },
+  components: {
+    empty,
+    AppLoading
+  },
   methods: {
-    getChecked () {
-
+    clearCurrent () {
+      console.log('清空')
+      this.current = {}
     },
     getList () {
+      this.loading = !this.loading
       this.list = []
       axios({
         method: 'get',
         url: ProjectCategory
       }).then(res => {
-        this.list.push(res.data.data)
+        console.log(res.data.data)
+        this.loading = !this.loading
+        if (res.data.data) {
+          this.list = res.data.data
+        }
       })
     },
     addSubmit () {
@@ -108,9 +136,11 @@ export default {
         this.getList()
       })
     },
-    modalAdd (node, data) {
-      this.current = data
-      this.add.parent = data.uId
+    modalAdd (data) {
+      if (data) {
+        this.current = data
+        this.add.parent = data.uId
+      }
       this.modal.add = true
     },
     delSubmit () {
@@ -128,59 +158,10 @@ export default {
       })
       this.modal.del = false
     },
-    modalDel (node, data) {
+    modalDel (data) {
       this.current = data
       this.del.id = data.uId
       this.modal.del = true
-    },
-    append (data) {
-      const newChild = { id: id++, label: 'testtest', children: [] }
-      if (!data.children) {
-        this.$set(data, 'children', [])
-      }
-      data.children.push(newChild)
-    },
-
-    remove (node, data) {
-      const parent = node.parent
-      const children = parent.data.children || parent.data
-      const index = children.findIndex(d => d.id === data.id)
-      children.splice(index, 1)
-    },
-
-    renderContent (h, { node, data, store }) {
-      return (
-        <span style="flex: 1; display: flex; align-items: center; justify-content: space-between; font-size: 14px; padding-right: 8px;">
-          <span>
-            <span>
-              {this.renderParent(data)}
-              {data.name}
-            </span>
-          </span>
-          <span class="do">
-            <el-button title="添加子部门" style="font-size: 12px;" plain size="mini" on-click={ () => this.modalAdd(node, data)} icon="el-icon-plus"></el-button>
-            <el-button title="删除该部门" style="font-size: 12px;" plain size="mini" on-click={ () => this.modalDel(node, data) } icon="el-icon-minus"></el-button>
-          </span>
-        </span>)
-    },
-    renderParent (data) {
-      if (data.children.length) {
-        return <span class="iconfont icon-folder" style="margin-right:5px;"></span>
-      } else {
-        if (data.name.indexOf('总监') > -1) {
-          return <span class="iconfont icon-yonghu" style="margin-right:5px;"></span>
-        } else if (data.name.indexOf('经理') > -1) {
-          return <span class="iconfont icon-leader" style="margin-right:5px;"></span>
-        } else if (data.name.indexOf('组长') > -1) {
-          return <span class="iconfont icon-icon-" style="margin-right:5px;"></span>
-        } else {
-          return <span class="iconfont icon-list" style="margin-right:5px;"></span>
-        }
-      }
-    },
-    filterNode (value, data) {
-      if (!value) return true
-      return data.name.indexOf(value) !== -1
     }
   },
   watch: {

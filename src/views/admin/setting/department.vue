@@ -19,7 +19,6 @@
         :expand-on-click-node="false"
         :filter-node-method="filterNode"
         ref="tree"
-        :getCheckedNodes="getChecked"
         :render-content="renderContent">
       </el-tree>
       <empty v-if="!list.length && !loading">
@@ -33,10 +32,11 @@
       </app-loading>
     </div>
     <el-dialog
-      title="填写部门名称"
+      :title="Object.keys(current).length ? '请填写子部门' : '请填写公司名称'"
       :visible.sync="modal.add"
+      @close="clearCurrent"
       width="30%">
-      <p v-if="current" style="margin-bottom:20px;">您正在添加<span style="color:#D94447;margin:0 5px;">{{current.name}}</span>的二级部门</p>
+      <p  v-if="Object.keys(current).length" style="margin-bottom:20px;">您正在添加<span style="color:#D94447;margin:0 5px;">{{current.name}}</span>的二级部门</p>
       <el-input
         placeholder="请填写部门名称"
         v-model="add.name"
@@ -99,8 +99,9 @@ export default {
     AppLoading
   },
   methods: {
-    getChecked () {
-
+    clearCurrent () {
+      console.log('清空')
+      this.current = {}
     },
     getList () {
       this.list = []

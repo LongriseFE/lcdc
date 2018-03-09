@@ -1,4 +1,4 @@
-export const address = 'http://192.168.0.119'
+export const address = 'http://192.168.0.204'
 export const server = address + '/api/public/api/'
 export const file = address + '/api/storage/app/uploads/'
 export const login = server + 'login'
