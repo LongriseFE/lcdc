@@ -1,0 +1,2 @@
+webpackJsonp([26],{RIYN:function(e,t,s){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var r={render:function(){var e=this.$createElement;return(this._self._c||e)("div")},staticRenderFns:[]},n=s("VU/8")({name:"logout",created:function(){this.$localStorage.set("userInfo",null),this.$router.replace("/login"),this.$Message.success("成功退出登录！"),this.$parent.$refs.header.userInfo=null,this.$parent.$refs.header.message=[]}},r,!1,null,null,null);t.default=n.exports}});
+//# sourceMappingURL=26.15b341c5c1baa45d4638.js.map

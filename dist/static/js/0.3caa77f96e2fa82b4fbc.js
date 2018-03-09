@@ -1,0 +1,2 @@
+webpackJsonp([0],{KeBu:function(t,e,n){"use strict";var s={render:function(){var t=this,e=t.$createElement,n=t._self._c||e;return n("div",{staticClass:"empty"},[t._t("icon"),t._v(" "),n("p",{staticClass:"text"},[t._t("text")],2)],2)},staticRenderFns:[]};var a=n("VU/8")(null,s,!1,function(t){n("i4mq")},"data-v-221968dd",null);e.a=a.exports},i4mq:function(t,e){}});
+//# sourceMappingURL=0.3caa77f96e2fa82b4fbc.js.map

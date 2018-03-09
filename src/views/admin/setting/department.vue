@@ -10,6 +10,7 @@
     </div>
     <div class="admin-main" style="overflow:auto;" v-if="list">
       <el-tree
+        v-if="list.length"
         style="padding:0 20px;"
         :data="list"
         :props="defaultProps"
@@ -21,12 +22,21 @@
         :getCheckedNodes="getChecked"
         :render-content="renderContent">
       </el-tree>
+      <empty v-if="!list.length && !loading">
+        <img slot="icon" src="static/tip1.png" alt="">
+        <p slot="text">还没有添加任何部门哦！
+          <el-button @click="modalAdd(null, null)" type="text">前去添加</el-button>
+        </p>
+      </empty>
+      <app-loading v-if="loading" style="height:100%;" name="tail-spin">
+        <span slot="text">正在努力加载中，请稍后！</span>
+      </app-loading>
     </div>
     <el-dialog
       title="填写部门名称"
       :visible.sync="modal.add"
       width="30%">
-      <p style="margin-bottom:20px;">您正在添加<span style="color:#D94447;margin:0 5px;">{{current.name}}</span>的二级部门</p>
+      <p v-if="current" style="margin-bottom:20px;">您正在添加<span style="color:#D94447;margin:0 5px;">{{current.name}}</span>的二级部门</p>
       <el-input
         placeholder="请填写部门名称"
         v-model="add.name"
@@ -52,12 +62,15 @@
 <script>
 import axios from 'axios'
 import {department, addDepartment, delDepartment} from '@/config'
+import empty from '@/components/empty'
+import AppLoading from '@/components/loading'
 let id = 1000
 export default {
   data () {
     return {
+      loading: false,
       filterText: '',
-      list: null,
+      list: [],
       current: {},
       modal: {
         add: false,
@@ -81,17 +94,25 @@ export default {
   created () {
     this.getList()
   },
+  components: {
+    empty,
+    AppLoading
+  },
   methods: {
     getChecked () {
 
     },
     getList () {
       this.list = []
+      this.loading = !this.loading
       axios({
         method: 'get',
         url: department
       }).then(res => {
-        this.list.push(res.data.data)
+        this.loading = !this.loading
+        if (res.data.data) {
+          this.list.push(res.data.data)
+        }
       })
     },
     addSubmit () {
@@ -109,8 +130,10 @@ export default {
       })
     },
     modalAdd (node, data) {
-      this.current = data
-      this.add.parent = data.uId
+      if (data) {
+        this.current = data
+        this.add.parent = data.uId
+      }
       this.modal.add = true
     },
     delSubmit () {
@@ -151,16 +174,16 @@ export default {
     renderContent (h, { node, data, store }) {
       return (
         <span style="flex: 1; display: flex; align-items: center; justify-content: space-between; font-size: 14px; padding-right: 8px;">
-        <span>
-        <span>
-        {this.renderParent(data)}
-        {data.name}
-        </span>
-        </span>
-        <span class="do">
-        <el-button title="添加子部门" style="font-size: 12px;" plain size="mini" on-click={ () => this.modalAdd(node, data)} icon="el-icon-plus"></el-button>
-        <el-button title="删除该部门" style="font-size: 12px;" plain size="mini" on-click={ () => this.modalDel(node, data) } icon="el-icon-minus"></el-button>
-        </span>
+          <span>
+            <span>
+              {this.renderParent(data)}
+              {data.name}
+            </span>
+          </span>
+          <span class="do">
+            <el-button title="添加子部门" style="font-size: 12px;" plain size="mini" on-click={ () => this.modalAdd(node, data)} icon="el-icon-plus"></el-button>
+            <el-button title="删除该部门" style="font-size: 12px;" plain size="mini" on-click={ () => this.modalDel(node, data) } icon="el-icon-minus"></el-button>
+          </span>
         </span>)
     },
     renderParent (data) {

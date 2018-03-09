@@ -151,16 +151,16 @@ export default {
     renderContent (h, { node, data, store }) {
       return (
         <span style="flex: 1; display: flex; align-items: center; justify-content: space-between; font-size: 14px; padding-right: 8px;">
-        <span>
-        <span>
-        {this.renderParent(data)}
-        {data.name}
-        </span>
-        </span>
-        <span class="do">
-        <el-button title="添加子部门" style="font-size: 12px;" plain size="mini" on-click={ () => this.modalAdd(node, data)} icon="el-icon-plus"></el-button>
-        <el-button title="删除该部门" style="font-size: 12px;" plain size="mini" on-click={ () => this.modalDel(node, data) } icon="el-icon-minus"></el-button>
-        </span>
+          <span>
+            <span>
+              {this.renderParent(data)}
+              {data.name}
+            </span>
+          </span>
+          <span class="do">
+            <el-button title="添加子部门" style="font-size: 12px;" plain size="mini" on-click={ () => this.modalAdd(node, data)} icon="el-icon-plus"></el-button>
+            <el-button title="删除该部门" style="font-size: 12px;" plain size="mini" on-click={ () => this.modalDel(node, data) } icon="el-icon-minus"></el-button>
+          </span>
         </span>)
     },
     renderParent (data) {

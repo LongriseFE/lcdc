@@ -1,0 +1,2 @@
+webpackJsonp([27],{B4Ut:function(e,n,t){"use strict";Object.defineProperty(n,"__esModule",{value:!0});var l={render:function(){var e=this,n=e.$createElement;return(e._self._c||n)("div",{staticClass:"page-view"},[e._v("\n  欢迎页\n")])},staticRenderFns:[]},r=t("VU/8")(null,l,!1,null,null,null);n.default=r.exports}});
+//# sourceMappingURL=27.0f988eb40d73d7835686.js.map

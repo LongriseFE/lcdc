@@ -1,0 +1,2 @@
+webpackJsonp([23],{P5Cz:function(e,n,t){"use strict";Object.defineProperty(n,"__esModule",{value:!0});var l={render:function(){var e=this,n=e.$createElement;return(e._self._c||n)("div",{staticClass:"info"},[e._v("\n  下载记录\n")])},staticRenderFns:[]},r=t("VU/8")(null,l,!1,null,null,null);n.default=r.exports}});
+//# sourceMappingURL=23.5cecd8e4638bf461c76e.js.map
