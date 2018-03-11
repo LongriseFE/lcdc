@@ -15,7 +15,7 @@
               <el-button @click="modalAdd(item)" style="float: right; padding: 5px 10px" type="primary">添加分类</el-button>
             </div>
             <el-tag
-              style="margin:0 5px;"
+              style="margin:5px;"
               v-for="tags in item.children"
               :key="tags.name"
               closable

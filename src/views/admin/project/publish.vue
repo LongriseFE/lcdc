@@ -47,12 +47,12 @@
         <el-row>
           <el-col :span="6">
             <el-form-item label="所属项目：">
-              <el-select style="width:100%;" v-model="form.branch" placeholder="请选择">
+              <el-select style="width:100%;"  v-model="form.branch"  placeholder="请选择" @change = "filterCategory">
                 <el-option
-                  v-for="item in branch"
-                  :key="item"
-                  :label="item"
-                  :value="item">
+                  v-for="(item, index) in branch"
+                  :key="index"
+                  :label="item.name"
+                  :value="item.value">
                 </el-option>
               </el-select>
             </el-form-item>
@@ -61,10 +61,10 @@
             <el-form-item label="分类：">
               <el-select style="width:100%;" v-model="form.category" placeholder="请选择">
                 <el-option
-                  v-for="item in category"
-                  :key="item"
-                  :label="item"
-                  :value="item">
+                  v-for="(item, index) in category"
+                  :key="index"
+                  :label="item.name"
+                  :value="item.value">
                 </el-option>
               </el-select>
             </el-form-item>
@@ -94,6 +94,7 @@
           <el-col :span="9">
             <el-form-item label="附件：">
               <el-upload
+                multiple
                 class="attach"
                 :action="upfile"
                 :on-success="attachSuccess"
@@ -125,7 +126,7 @@ import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
 import axios from 'axios'
-import {upfile, delfile, addProject} from '@/config'
+import {upfile, delfile, addProject, ProjectCategory} from '@/config'
 import { quillEditor, Quill } from 'vue-quill-editor'
 import {ImageDrop} from 'quill-image-drop-module'
 import ImageResize from 'quill-image-resize-module'
@@ -193,9 +194,12 @@ export default {
   components: {
     quillEditor
   },
+  created () {
+    this.getProjectCategory()
+  },
   methods: {
     submit () {
-      this.form.attach = this.form.attach.substring(0, this.form.attach.lastIndexOf(','))
+      this.getattach()
       this.form.tag = this.form.tag.substring(0, this.form.tag.lastIndexOf(','))
       var formData = new FormData()
       formData.append('uId', JSON.parse(this.$localStorage.get('userInfo')).uId)
@@ -262,17 +266,17 @@ export default {
       }
     },
     attachSuccess (res, file, fileList) {
-      // this.attach = []
-      if (res.status) {
-        this.$message({
-          message: res.msg,
-          type: 'success'
-        })
-        this.attach.push(res.data)
-        this.attach.map(item => {
-          this.form.attach += JSON.stringify(item) + ','
-        })
-      }
+      this.attach = fileList
+    },
+    getattach () {
+      var newattach = []
+      this.attach.forEach(item => {
+        newattach.push(item.response.data)
+      })
+      newattach.forEach((item, index) => {
+        newattach[index] = JSON.stringify(item)
+      })
+      this.form.attach = newattach.join('-')
     },
     delFile (file, fileList) {
       axios({
@@ -288,6 +292,21 @@ export default {
             type: 'success',
             message: res.data.msg
           })
+        }
+      })
+    },
+    getProjectCategory () {
+      axios({
+        methods: 'get',
+        url: ProjectCategory
+      }).then(res => {
+        this.branch = res.data.data
+      })
+    },
+    filterCategory (current) {
+      this.branch.forEach(item => {
+        if (item.value === current) {
+          this.category = item.children
         }
       })
     }

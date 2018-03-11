@@ -4,7 +4,7 @@
       <li>
         <router-link to="/project/all">全部</router-link>
       </li>
-      <li v-if="category" v-for="(item, index) in category.children" :key="index">
+      <li v-if="category.length" v-for="(item, index) in category" :key="index">
         <router-link :to="'/project/' + item.value">{{item.name}}</router-link>
         <el-dropdown v-if="item.children.length" trigger="click" @command="handleCommand">
           <span class="el-dropdown-link">
@@ -85,7 +85,7 @@ export default {
       title: '项目',
       list: [],
       total: 0,
-      category: {},
+      category: [],
       loading: false,
       ispaging: false,
       activeCategory: '',
@@ -166,6 +166,7 @@ export default {
         url: ProjectCategory
       }).then(res => {
         this.category = res.data.data
+        console.log(this.category)
       })
     },
     handleCommand (command) {

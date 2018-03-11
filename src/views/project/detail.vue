@@ -104,7 +104,7 @@
             {{info.download}}次
           </el-form-item>
           <el-form-item label="附件：" v-if="info.attach">
-            <a href="javascript:;" @click="down"><span class="iconfont v-m icon-fujian"></span><span class="v-m">{{JSON.parse(info.attach).name}}</span></a>
+            <a style="display:block;" href="javascript:;" v-for="(item, index) in info.attach" :key="index" @click="down"><span class="iconfont v-m icon-fujian"></span><span class="v-m">{{item.name}}</span></a>
           </el-form-item>
         </el-form>
         <el-button type="danger" round style="width:100%;margin-bottom:50px;">收藏</el-button>
@@ -213,9 +213,15 @@ export default {
         }
       }).then(res => {
         this.info = res.data.data
+        var attach = this.info.attach.split('-')
+        attach.forEach((item, index) => {
+          attach[index] = JSON.parse(item)
+        })
+        this.info.attach = attach
         this.title = res.data.data.title
         this.$emit('updateHead')
         this.getComments()
+        // console.log(this.info)
       })
     },
     getComments () {
@@ -229,7 +235,6 @@ export default {
           pagesize: this.pagesize
         }
       }).then(res => {
-        console.log(res.data.data.data)
         this.total = res.data.total
         this.comments = res.data.data.data
       })
