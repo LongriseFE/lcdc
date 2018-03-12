@@ -119,7 +119,7 @@ export default {
               this.$Message.success(res.data.msg)
               this.$localStorage.set('userInfo', null)
               this.$parent.$parent.$refs.header.userInfo = null
-              this.$router.replace('/author')
+              this.$router.replace('/login')
             } else {
               this.$Message.error(res.data.msg)
             }

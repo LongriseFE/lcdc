@@ -39,7 +39,7 @@
               <div class="label">验证码：</div>
             </li>
             <li class="col v-m g-12">
-              <Input v-model="form.code" size="large" placeholder="请填写邮箱收到的数字验证码！"/>
+              <Input v-model="form.code" size="large" placeholder="请填写手机收到的数字验证码！"/>
             </li>
             <li class="col g-9"></li>
           </ul>
