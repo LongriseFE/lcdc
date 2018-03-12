@@ -13,6 +13,11 @@
           </el-breadcrumb>
         </div>
         <div v-html="info.html" style="margin-bottom:50px;"></div>
+        <el-row>
+          <el-col style="text-align:center;padding-bottom:50px;">
+            <span title="点赞" class="iconfont icon-zan thumb-button"></span>
+          </el-col>
+        </el-row>
         <h3 class="title">评论 <span class="count"><i>{{total}}</i>条评论</span></h3>
         <ul class="comments" v-if="comments.length">
           <li v-for="(item, index) in comments" :key="index">
@@ -255,6 +260,18 @@ export default {
 .article{
   img{
     max-width:100%;
+  }
+  .thumb-button{
+    display:inline-block;
+    width:80px;
+    height:80px;
+    background:#F58E00;
+    border-radius:50%;
+    text-align:center;
+    line-height:80px;
+    font-size:30px;
+    color:#fff;
+    cursor: pointer;
   }
   p{
     font-size:14px;

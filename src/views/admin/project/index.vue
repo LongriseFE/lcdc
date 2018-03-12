@@ -155,28 +155,49 @@ export default {
         align: 'center'
       }, {
         title: '标题',
-        key: 'title'
+        key: 'title',
+        width: 500
       }, {
         title: '所属部门',
-        key: 'branch'
+        key: 'branch',
+        align: 'center',
+        width: 100,
+        render: (h, params) => {
+          const item = this.list[params.index][params.column.key]
+          return item.name
+        }
       }, {
         title: '分类',
-        key: 'category'
+        key: 'category',
+        align: 'center',
+        width: 100,
+        render: (h, params) => {
+          const item = this.list[params.index][params.column.key]
+          return item.name
+        }
       }, {
         title: '作者',
-        key: 'author'
+        key: 'author',
+        align: 'center',
+        width: 100,
+        render: (h, params) => {
+          const item = this.list[params.index][params.column.key]
+          return item.name
+        }
       }, {
         title: '浏览量',
+        align: 'center',
+        width: 100,
         key: 'view'
       }, {
         title: '下载量',
-        key: 'birthday'
-      }, {
-        title: 'tag',
-        key: '标签'
+        width: 100,
+        align: 'center',
+        key: 'download'
       }, {
         title: '注册时间',
         key: 'created_at',
+        align: 'center',
         render: (h, params) => {
           const timestamp = this.list[params.index][params.column.key]
           return new Date(parseInt(timestamp) * 1000).toLocaleString().replace(/:\d{1,2}$/, ' ')
