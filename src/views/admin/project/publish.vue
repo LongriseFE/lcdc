@@ -212,7 +212,6 @@ export default {
           'Content-Type': 'application/x-www-form-urlencoded'
         }
       }).then(res => {
-        console.log(res)
         if (res.data.status) {
           this.$message({
             message: res.data.msg,
@@ -226,9 +225,6 @@ export default {
     },
     showInput () {
       this.inputVisible = true
-      this.$nextTick(_ => {
-        this.$refs.saveTagInput.$refs.input.focus()
-      })
     },
     handleInputConfirm () {
       let inputValue = this.inputValue
@@ -238,14 +234,12 @@ export default {
         this.dynamicTags.forEach((item) => {
           this.form.tag += item + ','
         })
-        console.log(this.form.tag)
       }
       this.inputVisible = false
       this.inputValue = ''
     },
     coverSuccess (res, file, fileList) {
       if (this.cover.length) {
-        console.log(this.form.cover[0])
         axios({
           methods: 'get',
           url: delfile,
@@ -300,7 +294,12 @@ export default {
         methods: 'get',
         url: ProjectCategory
       }).then(res => {
-        this.branch = res.data.data
+        if (Object.prototype.toString.call(res.data.data) === '[object Array]') {
+          this.branch = res.data.data
+        } else {
+          this.branch.push(res.data.data)
+        }
+        console.log(this.branch)
       })
     },
     filterCategory (current) {

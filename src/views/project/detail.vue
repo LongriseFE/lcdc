@@ -104,7 +104,7 @@
             {{info.download}}次
           </el-form-item>
           <el-form-item label="附件：" v-if="info.attach">
-            <a style="display:block;" href="javascript:;" v-for="(item, index) in info.attach" :key="index" @click="down"><span class="iconfont v-m icon-fujian"></span><span class="v-m">{{item.name}}</span></a>
+            <a style="display:block;" href="javascript:;" v-for="(item, index) in info.attach" :key="index" @click="down(item)"><span class="iconfont v-m icon-fujian"></span><span class="v-m">{{item.name}}</span></a>
           </el-form-item>
         </el-form>
         <el-button type="danger" round style="width:100%;margin-bottom:50px;">收藏</el-button>
@@ -124,6 +124,7 @@ import {projectInfo, download, comments, file, commentAdd} from '@/config'
 import axios from 'axios'
 import Empty from '@/components/empty'
 import moment from 'moment'
+import { setTimeout } from 'timers'
 export default {
   name: 'projectInfo',
   head: {
@@ -200,8 +201,12 @@ export default {
         this.getComments()
       })
     },
-    down () {
-      this.downUrl = download + '?url=' + JSON.parse(this.info.attach).name + '&name=' + this.info.title + '&uId=' + this.info.uId
+    down (item) {
+      console.log(item)
+      this.downUrl = download + '?url=' + item.name + '&name=' + this.info.title + '&uId=' + this.info.uId
+      setTimeout(() => {
+        this.getInfo()
+      }, 1000)
     },
     getInfo () {
       this.reply.topicId = this.$route.params.uId
@@ -213,6 +218,7 @@ export default {
         }
       }).then(res => {
         this.info = res.data.data
+        console.log(this.info)
         var attach = this.info.attach.split('-')
         attach.forEach((item, index) => {
           attach[index] = JSON.parse(item)
@@ -249,6 +255,11 @@ export default {
 .article{
   img{
     max-width:100%;
+  }
+  p{
+    font-size:14px;
+    line-height:1.8;
+    text-indent:2em;
   }
   .title{
     font-weight:normal;

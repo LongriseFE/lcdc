@@ -83,7 +83,7 @@ export default {
         padding:0;
         padding-top:55px;
         padding-bottom:45px;
-        boi-sizing:border-box;
+        box-sizing:border-box;
         .page-title{
           margin-top:-55px;
           padding:10px 10px 10px 25px;
@@ -94,7 +94,7 @@ export default {
         .admin-main{
           height:100%;
           padding:10px;
-          boi-sizing:border-box;
+          box-sizing:border-box;
         }
         .page-area{
           width:100%;
@@ -111,5 +111,11 @@ export default {
     margin-top:-60px;
     position:static;
   }
+}
+.el-menu-item-group__title{
+  color:rgba(255,255,255,0.8) !important;
+}
+.el-menu-item i,.el-submenu__title i{
+  color:rgba(255,255,255,0.8) !important;
 }
 </style>

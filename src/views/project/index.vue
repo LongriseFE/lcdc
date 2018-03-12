@@ -21,10 +21,10 @@
         <span @click="handleSort" v-if="form.sort === 'desc'" class="iconfont icon-paixu-shengxu v-m"></span>
       </li>
     </ul>
-    <loading v-if="loading" name="tail-spin" style="height:280px;" :size="28">
+    <loading v-if="loading" name="tail-spin" style="height:700px;" :size="28">
       <span slot="text">正在努力加载，请稍后！</span>
     </loading>
-    <empty v-if="!list.length && !loading">
+    <empty v-if="!list.length && !loading" style="height:700px;">
       <img slot="icon" src="static/tip2.png" alt="">
       <span slot="text">这里还空空如也！</span>
     </empty>
@@ -47,7 +47,7 @@
               <el-col :span="10">
                 <p class="time">
                   <span class="iconfont icon-hot"></span>
-                  <span>{{item.view}}</span>
+                  <span>{{item.download}}</span>
                 </p>
               </el-col>
               <el-col :span="14" style="text-align:right;">
@@ -216,7 +216,7 @@ export default {
         overflow:hidden;
         padding:10px;
         transition:0.3s;
-        height:300px;
+        height:320px;
         &:hover{
           box-shadow:0 2px 5px #ccc;
         }
@@ -236,6 +236,8 @@ export default {
           font-size:14px;
           font-weight:normal;
           padding:5px 0;
+          display:block;
+          height:50px;
           a{
             color:#666;
             &:hover{

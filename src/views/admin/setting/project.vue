@@ -115,11 +115,13 @@ export default {
         method: 'get',
         url: ProjectCategory
       }).then(res => {
-        console.log(res.data.data)
         this.loading = !this.loading
-        if (res.data.data) {
+        if (Object.prototype.toString.call(res.data.data) === '[object Array]') {
           this.list = res.data.data
+        } else {
+          this.list.push(res.data.data)
         }
+        console.log(this.list)
       })
     },
     addSubmit () {
