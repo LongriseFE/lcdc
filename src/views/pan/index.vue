@@ -80,7 +80,7 @@
   </div>
 </template>
 <script>
-import { pan } from '@/config'
+import {pan, makedir} from '@/config'
 import axios from 'axios'
 import contextMenu from '@/components/contextmenu'
 export default {
@@ -95,7 +95,9 @@ export default {
   data () {
     return {
       title: '网盘',
+      parent: '',
       grid: true,
+      foldname: '',
       list: null
     }
   },
@@ -139,21 +141,34 @@ export default {
       }
     },
     makeFolder () {
-      this.$Modal.confirm({
-        render: (h) => {
-          return h('Input', {
-            props: {
-              value: this.value,
-              autofocus: true,
-              placeholder: '请填写文件夹名称！'
-            },
-            on: {
-              input: (val) => {
-                this.value = val
-              }
-            }
-          })
+      this.$prompt('请填写目录名称！', '创建目录', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消'
+      }).then(({ value }) => {
+        let parent = this.$route.query.dir
+        if (parent) {
+          parent = parent.split('/')
+          parent.shift()
+          this.parent = parent.join('/')
+        } else {
+          parent = ''
         }
+        axios({
+          method: 'get',
+          url: makedir,
+          params: {
+            dir: value,
+            parent: this.parent
+          }
+        }).then(res => {
+          console.log(res)
+          this.$message({
+            type: 'success',
+            message: '你的邮箱是: ' + value
+          })
+          this.getDir()
+        })
+      }).catch(() => {
       })
     }
   },

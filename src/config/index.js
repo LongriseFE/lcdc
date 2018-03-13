@@ -42,3 +42,6 @@ export const download = server + 'download'
 export const comments = server + 'comments/list'
 export const commentAdd = server + 'comments/add'
 export const praise = server + 'thumbs/add'
+export const makedir = server + 'dir/make'
+export const branch = {}
+export const projectCategorys = []

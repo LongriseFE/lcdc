@@ -92,7 +92,7 @@
   </div>
 </template>
 <script>
-import {projectList, captcha, adminUserAdd, adminUserEdit, removeUser, branch, projectCategory} from '@/config'
+import {projectList, captcha, adminUserAdd, adminUserEdit, removeUser, branch, projectCategorys} from '@/config'
 import axios from 'axios'
 export default {
   name: 'userList',
@@ -108,7 +108,7 @@ export default {
       title: '项目管理',
       captcha: captcha,
       branch: branch,
-      projectCategory: projectCategory,
+      projectCategory: projectCategorys,
       loading: false,
       currentPage: parseInt(this.$route.query.page) || 1,
       tableLoading: false,
