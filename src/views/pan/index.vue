@@ -71,6 +71,7 @@
         </div>
       </li>
     </ul>
+    {{downurl}}
     <!-- 右键菜单 -->
     <context-menu ref="menu">
       <ul class="options" :user-data="1">
@@ -102,10 +103,11 @@
         <el-button type="primary" @click="uploadmodal = false">确 定</el-button>
       </span>
     </el-dialog>
+    <iframe :src="downurl" frameborder="0"></iframe>
   </div>
 </template>
 <script>
-import {pan, makedir, deldir, updatedir, updir} from '@/config'
+import {pan, makedir, deldir, updatedir, updir, downdir} from '@/config'
 import axios from 'axios'
 import contextMenu from '@/components/contextmenu'
 import Loading from '@/components/loading'
@@ -127,7 +129,9 @@ export default {
       list: null,
       loading: false,
       uploadmodal: false,
-      updir: updir
+      updir: updir,
+      download: downdir,
+      downurl: ''
     }
   },
   components: {
@@ -196,7 +200,20 @@ export default {
         case 'rename':
           this.rename(opt)
           break
+        case 'download':
+          this.downfile(opt)
+          break
       }
+    },
+    downfile (item) {
+      let url = item.dir.split('/')
+      url.shift()
+      url = url.join('\\')
+      let name = item.name.split('.')
+      name.pop()
+      name = name.join('')
+      this.downurl = this.download + '?url=' + url + '&name=' + name
+      console.log(url)
     },
     rename (item) {
       this.$prompt('您正在重命名（' + item.name + '）！', '重命名', {
