@@ -39,7 +39,7 @@
                 <span>加载失败</span>
               </div>
             </div>
-            <h2 class="title"><router-link :to="'/project/' + item.branch + '/' + item.category + '/' + item.uId">{{item.title}}</router-link></h2>
+            <h2 class="title"><router-link :to="'/project/' + item.branch.value + '/' + item.category.value + '/' + item.uId">{{item.title}}</router-link></h2>
             <p class="tag">
               <el-tag size="mini" style="margin-right:4px;" v-for="(item, index) in tag(item.tag)" :key="index">{{item}}</el-tag>
             </p>

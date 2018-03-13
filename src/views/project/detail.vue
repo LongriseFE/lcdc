@@ -14,8 +14,21 @@
         </div>
         <div v-html="info.html" style="margin-bottom:50px;"></div>
         <el-row>
-          <el-col style="text-align:center;padding-bottom:50px;">
-            <span title="点赞" class="iconfont icon-zan thumb-button"></span>
+          <el-col style="text-align:center;padding-bottom:20px;">
+            <span @click="setThumbs" title="点赞" class="thumb-button" :class="info.praise ? 'active' : ''">
+              <i class="iconfont icon-zan"></i>
+              <span v-if="!info.praise">点赞</span>
+              <span v-if="info.praise">取消</span>
+            </span>
+          </el-col>
+          <el-col style="text-align:center;margin-bottom:40px;background:#f5f5f5;padding:3px 0;">
+            <router-link class="raise" to="" v-for="(item, index) in info.praiselist.data" :key="index">
+              <span class="cover">
+                <img :src="file + item.cover" alt="">
+              </span>
+              <b>{{item.name}}</b>
+            </router-link>
+            <span style="display:inline-block;vertical-align:middle;font-size:14px;color:#666;">等<span style="color:#D94447;font-size:18px;margin:0 5px;">{{info.praiselist.total}}</span>人觉得很赞！</span>
           </el-col>
         </el-row>
         <h3 class="title">评论 <span class="count"><i>{{total}}</i>条评论</span></h3>
@@ -125,7 +138,7 @@
   </div>
 </template>
 <script>
-import {projectInfo, download, comments, file, commentAdd} from '@/config'
+import {projectInfo, download, comments, file, commentAdd, praise} from '@/config'
 import axios from 'axios'
 import Empty from '@/components/empty'
 import moment from 'moment'
@@ -219,7 +232,8 @@ export default {
         method: 'get',
         url: projectInfo,
         params: {
-          uId: this.$route.params.uId
+          uId: this.$route.params.uId,
+          vistor: this.userInfo.uId
         }
       }).then(res => {
         this.info = res.data.data
@@ -249,6 +263,25 @@ export default {
         this.total = res.data.total
         this.comments = res.data.data.data
       })
+    },
+    setThumbs () {
+      axios({
+        methods: 'get',
+        url: praise,
+        params: {
+          target: this.$route.params.uId,
+          user: this.userInfo.uId
+        }
+      }).then(res => {
+        if (res.data.status) {
+          if (res.data.status === 1) {
+            this.info.praise = 1
+          } else if (res.data.status === 2) {
+            this.info.praise = 0
+          }
+          this.getInfo()
+        }
+      })
     }
   },
   watch: {
@@ -261,17 +294,49 @@ export default {
   img{
     max-width:100%;
   }
+  .raise{
+    text-align:center;
+    display:inline-block;
+    margin:0 5px;
+    .cover{
+      display:inline-block;
+      vertical-align: middle;
+      width:30px;
+      height:30px;
+      border-radius:50%;
+      overflow:hidden;
+      border:1px solid #eee;
+    }
+    b{
+      display:inline-block;
+      vertical-align: middle;
+      font-weight:normal;
+      font-size:14px;
+      padding:5px 0;
+    }
+  }
   .thumb-button{
     display:inline-block;
-    width:80px;
-    height:80px;
-    background:#F58E00;
+    width:90px;
+    height:90px;
+    background:#F56C6C;
     border-radius:50%;
     text-align:center;
-    line-height:80px;
-    font-size:30px;
+    font-size:14px;
     color:#fff;
     cursor: pointer;
+    transition:0.3s;
+    &.active{
+      background:none;
+      color:#F56C6C;
+      border:1px solid #F56C6C;
+    }
+    .iconfont{
+      display:block;
+      height:50px;
+      line-height:65px;
+      font-size:26px;
+    }
   }
   p{
     font-size:14px;

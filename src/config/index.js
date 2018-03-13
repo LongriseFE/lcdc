@@ -41,20 +41,4 @@ export const delfile = server + 'delete'
 export const download = server + 'download'
 export const comments = server + 'comments/list'
 export const commentAdd = server + 'comments/add'
-export const branch = [{
-  value: 0,
-  label: '前端组'
-}, {
-  value: 1,
-  label: '平面组'
-}, {
-  value: 2,
-  label: '开发'
-}]
-export const projectCategory = [{
-  value: 0,
-  label: '系统'
-}, {
-  value: 1,
-  label: '手机'
-}]
+export const praise = server + 'thumbs/add'
