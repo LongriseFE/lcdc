@@ -3,7 +3,7 @@
     <div class="bar">
       <ul class="row w h">
         <li class="col v-m">
-          <Button type="primary">文件上传</Button>
+          <Button type="primary" @click="uploadmodal = true">文件上传</Button>
           <Button type="ghost" @click="makeFolder">新建文件夹</Button>
         </li>
         <li class="col v-m"></li>
@@ -26,7 +26,11 @@
       <li class="grid-item" style="width:10%;">大小</li>
       <li class="grid-item t-r" style="width:15%;">修改日期</li>
     </ul>
+    <loading v-if="loading" name="tail-spin" style="height:700px;" :size="28">
+      <span slot="text">正在努力加载，请稍后！</span>
+    </loading>
     <ul
+      v-if="!loading"
       class="dir-list"
       :class="{
         'grid': grid
@@ -55,7 +59,7 @@
           </div>
         </Poptip>
         <div @click="jump(item)" class="dir-item" @contextmenu.prevent="$refs.menu.open($event, item)">
-          <div class="icon" v-if="item.url && item.ext.indexOf('image') > -1">
+          <div class="icon" v-if="item.url && item.ext === 'image/jpeg' || item.ext === 'image/png'">
             <img :src="item.url" alt="">
           </div>
           <div class="icon" v-else>
@@ -70,19 +74,41 @@
     <!-- 右键菜单 -->
     <context-menu ref="menu">
       <ul class="options" :user-data="1">
-        <li @click="onClick($refs.menu.userData)"><span class="v-m iconfont icon-rename"></span><span class="v-m">重命名</span></li>
-        <li @click="onClick($refs.menu.userData)"><span class="v-m iconfont icon-share"></span><span class="v-m">分享</span></li>
-        <li @click="onClick($refs.menu.userData)"><span class="v-m iconfont icon-move"></span><span class="v-m">移动到</span></li>
-        <li @click="onClick($refs.menu.userData)"><span class="v-m iconfont icon-del"></span><span class="v-m">删除</span></li>
-        <li @click="onClick($refs.menu.userData)"><span class="v-m iconfont icon-download"></span><span class="v-m">下载</span></li>
+        <li @click="onClick($refs.menu.userData, 'rename')"><span class="v-m iconfont icon-rename"></span><span class="v-m">重命名</span></li>
+        <li @click="onClick($refs.menu.userData, 'share')"><span class="v-m iconfont icon-share"></span><span class="v-m">分享</span></li>
+        <li @click="onClick($refs.menu.userData, 'move')"><span class="v-m iconfont icon-move"></span><span class="v-m">移动到</span></li>
+        <li @click="onClick($refs.menu.userData, 'delete')"><span class="v-m iconfont icon-del"></span><span class="v-m">删除</span></li>
+        <li @click="onClick($refs.menu.userData, 'download')"><span class="v-m iconfont icon-download"></span><span class="v-m">下载</span></li>
       </ul>
     </context-menu>
+    <el-dialog
+      title="文件上传"
+      :visible.sync="uploadmodal"
+      :close-on-click-modal="false"
+      width="800px">
+      <el-upload
+        class="upload-demo"
+        drag
+        :action="updir"
+        :http-request="uploadFiles"
+        :auto-upload="true"
+        multiple>
+        <i class="el-icon-upload"></i>
+        <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+        <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过500kb</div>
+      </el-upload>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="uploadmodal = false">取 消</el-button>
+        <el-button type="primary" @click="uploadmodal = false">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
-import {pan, makedir} from '@/config'
+import {pan, makedir, deldir, updatedir, updir} from '@/config'
 import axios from 'axios'
 import contextMenu from '@/components/contextmenu'
+import Loading from '@/components/loading'
 export default {
   name: 'pan',
   head: {
@@ -98,17 +124,46 @@ export default {
       parent: '',
       grid: true,
       foldname: '',
-      list: null
+      list: null,
+      loading: false,
+      uploadmodal: false,
+      updir: updir
     }
   },
   components: {
-    'context-menu': contextMenu
+    'context-menu': contextMenu,
+    Loading
   },
   created () {
     this.getDir()
   },
   methods: {
-    getDir (v) {
+    uploadFiles (params) {
+      let parent = this.$route.query.dir
+      if (parent) {
+        parent = parent.split('/')
+        parent.shift()
+        this.parent = parent.join('/')
+      } else {
+        parent = ''
+      }
+      var formData = new FormData()
+      formData.append('file', params.file)
+      formData.append('dir', parent)
+      axios({
+        method: 'post',
+        url: updir,
+        data: formData,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      }).then(res => {
+        console.log(res)
+        this.getDir()
+      })
+    },
+    getDir () {
+      this.loading = !this.loading
       let params = {}
       let dir = this.$route.query.dir
       if (dir) {
@@ -126,14 +181,74 @@ export default {
         params: params
       }).then(res => {
         this.list = res.data.data
+        this.loading = !this.loading
         console.log(this.list)
       })
     },
     toggleGrid () {
       this.grid = !this.grid
     },
-    onClick (opt) {
-      console.log('Clicked', opt)
+    onClick (opt, tag) {
+      switch (tag) {
+        case 'delete':
+          this.delete(opt)
+          break
+        case 'rename':
+          this.rename(opt)
+          break
+      }
+    },
+    rename (item) {
+      this.$prompt('您正在重命名（' + item.name + '）！', '重命名', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消'
+      }).then(({ value }) => {
+        let newname = item.dir.split('/')
+        newname.shift()
+        newname[newname.length - 1] = value
+        newname = newname.join('/')
+        let dir = item.dir.split('/')
+        dir.shift()
+        dir = dir.join('/')
+        console.log(newname, dir)
+        axios({
+          method: 'get',
+          url: updatedir,
+          params: {
+            dir: dir,
+            value: newname
+          }
+        }).then(res => {
+          this.getDir()
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '取消输入'
+        })
+      })
+    },
+    delete (item) {
+      this.$confirm('此操作将永久删除该文件, 是否继续?', '删除', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        axios({
+          method: 'get',
+          url: deldir,
+          params: {
+            dir: item.dir
+          }
+        }).then(res => {
+          this.getDir()
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
     },
     jump (item) {
       if (!item.url) {
@@ -161,11 +276,6 @@ export default {
             parent: this.parent
           }
         }).then(res => {
-          console.log(res)
-          this.$message({
-            type: 'success',
-            message: '你的邮箱是: ' + value
-          })
           this.getDir()
         })
       }).catch(() => {

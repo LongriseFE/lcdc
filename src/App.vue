@@ -138,4 +138,7 @@ input:focus,button:focus{outline:none;}
     transform:rotate(360deg)
   }
 }
+.el-upload-dragger,.el-upload{
+  width:100% !important;
+}
 </style>
