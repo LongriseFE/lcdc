@@ -1,10 +1,11 @@
 <template>
-  <div class="pan" v-if="list">
+  <div class="pan">
     <div class="bar">
       <ul class="row w h">
         <li class="col v-m">
           <Button type="primary" @click="uploadmodal = true">文件上传</Button>
           <Button type="ghost" @click="makeFolder">新建文件夹</Button>
+          <Button v-if="current" type="ghost" @click="back">返回上一层</Button>
         </li>
         <li class="col v-m"></li>
         <li class="col v-m t-r grid">
@@ -13,8 +14,8 @@
           <span
             class="iconfont"
             :class="{
-              'icon-listgrid': grid,
-              'icon-list': !grid
+              'icon-listgrid': !grid,
+              'icon-list': grid
             }"
             @click="toggleGrid"
           ></span>
@@ -26,9 +27,13 @@
       <li class="grid-item" style="width:10%;">大小</li>
       <li class="grid-item t-r" style="width:15%;">修改日期</li>
     </ul>
-    <loading v-if="loading" name="tail-spin" style="height:700px;" :size="28">
+    <loading v-if="loading" name="tail-spin" style="height:600px;" :size="28">
       <span slot="text">正在努力加载，请稍后！</span>
     </loading>
+    <empty v-if="!loading && !list.content.length" name="tail-spin" style="height:600px;" :size="28">
+      <img slot="icon" src="static/tip2.png" alt="">
+      <span slot="text">这里还空空如也！</span>
+    </empty>
     <ul
       v-if="!loading"
       class="dir-list"
@@ -71,7 +76,6 @@
         </div>
       </li>
     </ul>
-    {{downurl}}
     <!-- 右键菜单 -->
     <context-menu ref="menu">
       <ul class="options" :user-data="1">
@@ -91,16 +95,28 @@
         class="upload-demo"
         drag
         :action="updir"
+        :show-file-list="false"
         :http-request="uploadFiles"
         :auto-upload="true"
+        :file-list="uploadlist"
+        :on-change="upchange"
+        ref="upload"
         multiple>
         <i class="el-icon-upload"></i>
         <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
         <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过500kb</div>
       </el-upload>
+      <el-form >
+        <el-form-item :label="item.name" v-for="(item, index) in uploadlist" :key="index">
+          <el-progress
+            :percentage="item.percentage"
+            :status="item.status === 'uploadSuccess' ? 'success' : ''"
+          ></el-progress>
+        </el-form-item>
+      </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="uploadmodal = false">取 消</el-button>
-        <el-button type="primary" @click="uploadmodal = false">确 定</el-button>
+        <el-button type="primary" @click="uploadmodal = false">完成</el-button>
       </span>
     </el-dialog>
     <iframe :src="downurl" frameborder="0"></iframe>
@@ -111,6 +127,7 @@ import {pan, makedir, deldir, updatedir, updir, downdir} from '@/config'
 import axios from 'axios'
 import contextMenu from '@/components/contextmenu'
 import Loading from '@/components/loading'
+import empty from '@/components/empty'
 export default {
   name: 'pan',
   head: {
@@ -126,22 +143,35 @@ export default {
       parent: '',
       grid: true,
       foldname: '',
-      list: null,
+      list: {
+        directions: 0,
+        files: 0
+      },
       loading: false,
       uploadmodal: false,
       updir: updir,
       download: downdir,
-      downurl: ''
+      downurl: '',
+      uploadlist: [],
+      current: ''
     }
   },
   components: {
     'context-menu': contextMenu,
-    Loading
+    Loading,
+    empty
   },
   created () {
     this.getDir()
+    this.current = this.$route.query.dir
   },
   methods: {
+    back () {
+      window.history.go(-1)
+    },
+    upchange (file, fileList) {
+      this.uploadlist = fileList
+    },
     uploadFiles (params) {
       let parent = this.$route.query.dir
       if (parent) {
@@ -160,9 +190,19 @@ export default {
         data: formData,
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        onUploadProgress: (progressEvent) => {
+          this.uploadlist.forEach((item, index) => {
+            if (item.uid === params.file.uid) {
+              this.uploadlist[index]['percentage'] = parseInt(progressEvent.loaded / progressEvent.total * 100)
+              if (this.uploadlist[index]['percentage'] === 100) {
+                this.uploadlist[index]['status'] = 'uploadSuccess'
+              }
+              console.log(this.uploadlist[index]['percentage'])
+            }
+          })
         }
       }).then(res => {
-        console.log(res)
         this.getDir()
       })
     },
@@ -170,11 +210,11 @@ export default {
       this.loading = !this.loading
       let params = {}
       let dir = this.$route.query.dir
+      this.current = dir
       if (dir) {
         dir = dir.split('/')
         dir.shift()
         dir = dir.join('/')
-        console.log(dir)
         params = {
           'dir': dir
         }
@@ -186,7 +226,6 @@ export default {
       }).then(res => {
         this.list = res.data.data
         this.loading = !this.loading
-        console.log(this.list)
       })
     },
     toggleGrid () {
@@ -306,12 +345,13 @@ export default {
 </script>
 <style scoped>
 .bar {
-  padding: 20px;
+  padding: 20px 0;
 }
 .dir-list {
   display: block;
   font-size: 0;
-  padding: 0 20px 20px 20px;
+  padding: 0 0 20px 0;
+  margin:-5px;
 }
 .dir-list li {
   display: inline-block;

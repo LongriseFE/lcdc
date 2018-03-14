@@ -121,11 +121,13 @@
           <el-form-item label="下载量：">
             {{info.download}}次
           </el-form-item>
-          <el-form-item label="附件：" v-if="info.attach">
-            <a style="display:block;" href="javascript:;" v-for="(item, index) in info.attach" :key="index" @click="down(item)"><span class="iconfont v-m icon-fujian"></span><span class="v-m">{{item.name}}</span></a>
+          <el-form-item v-if="info.attach">
+            <el-button v-for="(item, index) in info.attach" :key="index" @click="down(item)" type="primary" round style="width:100%;margin-bottom:20px;">下载附件</el-button>
+            <span></span>
+            <el-button @click="addCollection" v-if="!info.collection" type="danger" round style="width:100%;margin-bottom:50px;">收藏</el-button>
+            <el-button @click="addCollection" plain v-if="info.collection" type="danger" round style="width:100%;margin-bottom:50px;">取消收藏</el-button>
           </el-form-item>
         </el-form>
-        <el-button type="danger" round style="width:100%;margin-bottom:50px;">收藏</el-button>
         <h2 class="title">最受欢迎</h2>
         <ul class="list">
           <li v-for="(item, index) in info.related" :key="index">
@@ -138,7 +140,7 @@
   </div>
 </template>
 <script>
-import {projectInfo, download, comments, file, commentAdd, praise} from '@/config'
+import {projectInfo, download, comments, file, commentAdd, praise, collectionadd} from '@/config'
 import axios from 'axios'
 import Empty from '@/components/empty'
 import moment from 'moment'
@@ -188,6 +190,25 @@ export default {
     this.getInfo()
   },
   methods: {
+    addCollection () {
+      axios({
+        methods: 'get',
+        url: collectionadd,
+        params: {
+          target: this.$route.params.uId,
+          user: this.userInfo.uId
+        }
+      }).then(res => {
+        if (res.data.status) {
+          if (res.data.status === 1) {
+            this.info.collection = 1
+          } else if (res.data.status === 2) {
+            this.info.collection = 0
+          }
+          this.getInfo()
+        }
+      })
+    },
     gettime (num) {
       return moment(parseInt(num) * 1000).calendar()
     },

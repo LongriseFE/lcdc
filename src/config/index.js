@@ -47,5 +47,6 @@ export const deldir = server + 'dir/del'
 export const updatedir = server + 'dir/update'
 export const updir = server + 'dir/upload'
 export const downdir = server + 'dir/download'
+export const collectionadd = server + 'collection/add'
 export const branch = {}
 export const projectCategorys = []
