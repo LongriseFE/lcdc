@@ -1,5 +1,5 @@
-// export const address = 'http://lcdc.longrise.cn:2080/api'
-export const address = 'http://192.168.0.204/api'
+export const address = 'http://lcdc.longrise.cn:2080/api'
+// export const address = 'http://192.168.0.204/api'
 // export const address = 'http://192.168.0.119/api'
 export const server = address + '/public/api/'
 export const file = address + '/storage/app/uploads/'

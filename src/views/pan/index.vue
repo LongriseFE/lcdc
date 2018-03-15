@@ -203,6 +203,7 @@ export default {
           })
         }
       }).then(res => {
+        console.log(res)
         this.getDir()
       })
     },
@@ -225,6 +226,7 @@ export default {
         params: params
       }).then(res => {
         this.list = res.data.data
+        console.log(this.list)
         this.loading = !this.loading
       })
     },
@@ -312,18 +314,19 @@ export default {
       }
     },
     makeFolder () {
+      let parent = this.$route.query.dir
+      if (!parent) {
+        this.parent = ''
+      } else {
+        parent = parent.split('/')
+        parent.shift()
+        this.parent = parent.join('/')
+      }
+      console.log(this.parent)
       this.$prompt('请填写目录名称！', '创建目录', {
         confirmButtonText: '确定',
         cancelButtonText: '取消'
       }).then(({ value }) => {
-        let parent = this.$route.query.dir
-        if (parent) {
-          parent = parent.split('/')
-          parent.shift()
-          this.parent = parent.join('/')
-        } else {
-          parent = ''
-        }
         axios({
           method: 'get',
           url: makedir,

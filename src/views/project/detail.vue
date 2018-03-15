@@ -124,8 +124,8 @@
           <el-form-item v-if="info.attach">
             <el-button v-for="(item, index) in info.attach" :key="index" @click="down(item)" type="primary" round style="width:100%;margin-bottom:20px;">下载附件</el-button>
             <span></span>
-            <el-button @click="addCollection" v-if="!info.collection" type="danger" round style="width:100%;margin-bottom:50px;">收藏</el-button>
-            <el-button @click="addCollection" plain v-if="info.collection" type="danger" round style="width:100%;margin-bottom:50px;">取消收藏</el-button>
+            <el-button @click="addCollection" v-if="!info.collection" type="danger" round style="width:100%;margin-bottom:50px;">关注</el-button>
+            <el-button @click="addCollection" plain v-if="info.collection" type="danger" round style="width:100%;margin-bottom:50px;">取消关注</el-button>
           </el-form-item>
         </el-form>
         <h2 class="title">最受欢迎</h2>
